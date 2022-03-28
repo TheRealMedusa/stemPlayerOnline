@@ -4,6 +4,7 @@ let nowPlaying = false;
 let tracksReady = [false, false, false, false];
 let sources = [null, null, null, null];
 let sourceGains = [null, null, null, null];
+let sourceMuteGains = [null, null, null, null];
 
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 const audioCtx = new AudioContext();
@@ -27,6 +28,8 @@ const loadBuffer = (response, i) => {
 	delete sourceGains[i];
 	sourceGains[i] = audioCtx.createGain();
 	sourceGains[i].gain.value = 1;
+	sourceMuteGains[i] = audioCtx.createGain();
+	sourceMuteGains[i].gain.value = 1;
 	sources[i] = audioCtx.createBufferSource();
 	audioCtx.decodeAudioData(response, (buffer) => {
 		if (!buffer) { console.log('Error decoding file data: ' + url);
@@ -34,7 +37,7 @@ const loadBuffer = (response, i) => {
 			sources[i].buffer = buffer;
 			tracksReady[i] = true;
 		}
-		sources[i].connect(sourceGains[i]).connect(masterGain).connect(audioCtx.destination)
+		sources[i].connect(sourceGains[i]).connect(sourceMuteGains[i]).connect(masterGain).connect(audioCtx.destination)
 	});
 	sources[i].addEventListener('ended', onEnded);
 }
